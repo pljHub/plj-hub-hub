@@ -7,14 +7,17 @@ import org.msa.hub.domain.repository.HubRepository;
 import org.msa.hub.global.util.DistanceMatrixUtil;
 import org.msa.hub.application.exception.hub.HubNotFoundException;
 import org.msa.hub.domain.model.Hub;
-import org.msa.hub.infrastructure.repository.HubRepositoryImpl;
 import org.msa.hub.application.dto.hubPath.HubPathListDTO;
 import org.msa.hub.application.dto.hubPath.HubPathRequestDTO;
 import org.msa.hub.application.dto.hubPath.HubPathResponseDTO;
 import org.msa.hub.application.dto.hubPath.HubPathSequenceDTO;
 import org.msa.hub.application.exception.hubPath.HubPathNotFoundException;
 import org.msa.hub.domain.model.HubPath;
-import org.msa.hub.infrastructure.repository.HubPathRepositoryImpl;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +38,7 @@ public class HubPathServiceImpl implements HubPathService {
     private final HubRepository hubRepository;
     private final HubPathRepository hubPathRepository;
     private final DistanceMatrixUtil distanceMatrixUtil;
+    private final CacheManager cacheManager;
 
     /**
      * 허브 경로 목록 조회
@@ -44,6 +48,7 @@ public class HubPathServiceImpl implements HubPathService {
      * @param orderBy
      * @return
      */
+    @Cacheable(cacheNames = "hubPathListCache", key = "{#page, #size, #sortBy, #orderBy}")
     @Override
     public Page<HubPathListDTO> getHubPathList(int page, int size, String sortBy, boolean orderBy) {
 
@@ -61,12 +66,13 @@ public class HubPathServiceImpl implements HubPathService {
 
     /**
      * 허브 경로 생성
-     * @param hubPathRequestDTO 
+     * @param hubPathRequestDTO
      * @throws UnsupportedEncodingException
      */
+    @CachePut(cacheNames = "hubPathCache", key = "#result.hubPathId")
     @Transactional
     @Override
-    public void createHubPath(HubPathRequestDTO hubPathRequestDTO) throws UnsupportedEncodingException {
+    public HubPathResponseDTO createHubPath(HubPathRequestDTO hubPathRequestDTO) throws UnsupportedEncodingException {
 
         Hub startHub = hubRepository.findById(hubPathRequestDTO.getStartHubId()).orElseThrow(
                 HubNotFoundException::new);
@@ -91,6 +97,8 @@ public class HubPathServiceImpl implements HubPathService {
                 .build();
 
         hubPathRepository.save(hubPath);
+
+        return HubPathResponseDTO.toDTO(hubPath);
     }
 
     /**
@@ -98,6 +106,7 @@ public class HubPathServiceImpl implements HubPathService {
      * @param hubPathId 
      * @return
      */
+    @Cacheable(cacheNames = "hubPathCache", key = "#hubPathId") // Cache Aside
     @Override
     public HubPathResponseDTO findHubPathById(UUID hubPathId) {
 
@@ -114,6 +123,8 @@ public class HubPathServiceImpl implements HubPathService {
      * @return
      * @throws UnsupportedEncodingException
      */
+    @CachePut(cacheNames = "hubPathCache", key = "#hubPathId")
+    @CacheEvict(cacheNames = {"hubPathListCache", "HubPathSequenceCache"}, allEntries = true)
     @Transactional
     @Override
     public HubPathResponseDTO updateHubPath(UUID hubPathId, HubPathRequestDTO hubPathRequestDTO) throws UnsupportedEncodingException {
@@ -130,7 +141,7 @@ public class HubPathServiceImpl implements HubPathService {
         // startHub와 destHub의 주소를 비교해 시간 계산
         String duration = distanceMatrixUtil.getDurationFromGoogleMaps(startHub.getAddress(), destHub.getAddress());
 
-        hubPath.updateHubPath(startHub, destHub, duration, hubPath.getRoutePath());
+        hubPath.updateHubPath(startHub, destHub, duration, hubPathRequestDTO.getRoutePath());
 
         return HubPathResponseDTO.toDTO(hubPath);
     }
@@ -139,6 +150,7 @@ public class HubPathServiceImpl implements HubPathService {
      * 허브 경로 삭제 - 논리적 삭제
      * @param hubPathId 
      */
+    @CacheEvict(cacheNames = "hubPathCache", key = "#hubPathId")
     @Transactional
     @Override
     public void deleteHubPath(UUID hubPathId) {
@@ -148,6 +160,17 @@ public class HubPathServiceImpl implements HubPathService {
 
         // 논리적 삭제
         hubPath.deleteHubPath();
+
+        // 전체 캐시 삭제 (리스트 캐시 및 시퀀스 캐시)
+        Cache hubPathListCache = cacheManager.getCache("hubPathListCache");
+        if (hubPathListCache != null) {
+            hubPathListCache.clear();  // 전체 캐시 삭제
+        }
+
+        Cache hubPathSequenceCache = cacheManager.getCache("HubPathSequenceCache");
+        if (hubPathSequenceCache != null) {
+            hubPathSequenceCache.clear();  // 전체 캐시 삭제
+        }
     }
 
     /**
@@ -156,6 +179,7 @@ public class HubPathServiceImpl implements HubPathService {
      * @param destHubId
      * @return
      */
+    @Cacheable(cacheNames = "HubPathSequenceCache", key = "{#startHubId, #destHubId}")
     @Override
     public List<HubPathSequenceDTO> getHubPathSequence(UUID startHubId, UUID destHubId) {
 

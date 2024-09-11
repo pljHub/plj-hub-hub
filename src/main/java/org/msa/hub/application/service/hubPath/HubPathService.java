@@ -16,7 +16,7 @@ public interface HubPathService {
     Page<HubPathListDTO> getHubPathList(int page, int size, String sortBy, boolean orderBy);
 
     // 허브 경로 생성
-    void createHubPath(HubPathRequestDTO hubPathRequestDTO) throws UnsupportedEncodingException;
+    HubPathResponseDTO createHubPath(HubPathRequestDTO hubPathRequestDTO) throws UnsupportedEncodingException;
 
     // 허브 경로 조회
     HubPathResponseDTO findHubPathById(UUID hubPathId);

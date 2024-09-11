@@ -4,11 +4,12 @@ import lombok.Builder;
 import lombok.Data;
 import org.msa.hub.domain.model.HubPath;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @Data
 @Builder
-public class HubPathListDTO {
+public class HubPathListDTO implements Serializable {
 
     private UUID hubPathId;
     private UUID startHubId;
