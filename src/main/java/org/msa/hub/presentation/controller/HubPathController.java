@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/hub_path")
+@RequestMapping("/api/hub-path")
 @RequiredArgsConstructor
 @Log4j2(topic = "HubPath Controller")
 public class HubPathController {
