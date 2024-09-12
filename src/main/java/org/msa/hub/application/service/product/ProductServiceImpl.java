@@ -146,4 +146,19 @@ public class ProductServiceImpl implements ProductService{
 
         product.reduceProductStock(quantity);
     }
+
+    /**
+     * 상품 재고 되돌리기
+     * @param productId 
+     * @param quantity
+     */
+    @Transactional
+    @Override
+    public void returnProductStock(UUID productId, int quantity) {
+
+        Product product = productRepository.findById(productId).orElseThrow(
+                ProductNotFoundException::new);
+
+        product.returnProductStock(quantity);
+    }
 }

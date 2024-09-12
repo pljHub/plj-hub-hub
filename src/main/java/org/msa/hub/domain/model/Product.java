@@ -55,4 +55,9 @@ public class Product extends AuditingEntity {
     public void reduceProductStock(int quantity){
         this.stock = this.stock - quantity;
     }
+
+    // 주문 수량만큼 재고 되돌리기
+    public void returnProductStock(int quantity){
+        this.stock = this.stock + quantity;
+    }
 }

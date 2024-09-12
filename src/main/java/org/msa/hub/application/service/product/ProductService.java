@@ -26,4 +26,7 @@ public interface ProductService {
 
     // 상품 재고 차감
     void reduceProductStock(UUID productId, int quantity);
+
+    // 상품 재고 되돌리기
+    void returnProductStock(UUID productId, int quantity);
 }

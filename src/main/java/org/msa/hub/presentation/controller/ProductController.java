@@ -89,8 +89,17 @@ public class ProductController {
     @PutMapping("/{productId}/reduceStock")
     public void reduceProductStock(@PathVariable UUID productId, @RequestParam int quantity){
 
-        log.info("Product Controller | DELETE deleteProduct");
+        log.info("Product Controller | PUT reduceProductStock");
 
         productService.reduceProductStock(productId,quantity);
+    }
+
+    // 상품 재고 되돌리기
+    @PutMapping("/{productId}/returnStock")
+    public void returnProductStock(@PathVariable UUID productId, @RequestParam int quantity){
+
+        log.info("Product Controller | PUT returnProductStock");
+
+        productService.returnProductStock(productId,quantity);
     }
 }
