@@ -36,9 +36,6 @@ public class Hub extends AuditingEntity {
     @Column(name = "longitude", nullable = false)
     private Double longitude;
 
-    @Column(name = "user_id", nullable = true)
-    private Long userId;
-
     public void updateHub(HubRequestDTO hubRequestDTO, GeocodingUtil.LatLong latLong){
         this.name = hubRequestDTO.getName();
         this.address = hubRequestDTO.getAddress();

@@ -67,7 +67,6 @@ public class HubServiceImpl implements HubService {
                 .address(hubRequestDTO.getAddress())
                 .latitude(latLong.getLatitude())
                 .longitude(latLong.getLongitude())
-                .userId(hubRequestDTO.getUserId())
                 .build();
 
         hubRepository.save(hub);
