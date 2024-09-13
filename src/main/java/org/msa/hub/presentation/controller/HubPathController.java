@@ -8,7 +8,10 @@ import org.msa.hub.application.dto.hubPath.HubPathRequestDTO;
 import org.msa.hub.application.dto.hubPath.HubPathResponseDTO;
 import org.msa.hub.application.dto.hubPath.HubPathSequenceDTO;
 import org.msa.hub.application.service.hubPath.HubPathService;
+import org.msa.hub.global.login.CurrentUser;
+import org.msa.hub.global.login.Login;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,14 +30,11 @@ public class HubPathController {
 
     // 허브 경로 목록 조회
     @GetMapping("")
-    public ResponseEntity<ResponseDto<Page<HubPathListDTO>>> getHubPathList(@RequestParam(value = "page", defaultValue = "1") int page,
-                                                                          @RequestParam(value = "size", defaultValue = "10") int size,
-                                                                          @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
-                                                                          @RequestParam(value = "orderBy", defaultValue = "true") boolean orderBy) {
+    public ResponseEntity<ResponseDto<Page<HubPathListDTO>>> getHubPathList(Pageable pageable) {
 
         log.info("HubPathController | GET getHubPathList");
 
-        Page<HubPathListDTO> hubPathListDTOPage = hubPathService.getHubPathList(page, size, sortBy, orderBy);
+        Page<HubPathListDTO> hubPathListDTOPage = hubPathService.getHubPathList(pageable);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseDto.success(HttpStatus.OK.name(), hubPathListDTOPage));
@@ -54,13 +54,13 @@ public class HubPathController {
 
     // 허브 경로 생성
     @PostMapping("")
-    public ResponseEntity<ResponseDto<String>> createHubPath(@RequestBody HubPathRequestDTO hubPathRequestDTO) throws UnsupportedEncodingException {
+    public ResponseEntity<ResponseDto<String>> createHubPath(@RequestBody HubPathRequestDTO hubPathRequestDTO, @Login CurrentUser currentUser) throws UnsupportedEncodingException {
 
         log.info("HubPathController | POST createHubPath");
         log.info(hubPathRequestDTO.getStartHubId());
         log.info(hubPathRequestDTO.getDestHubId());
 
-        hubPathService.createHubPath(hubPathRequestDTO);
+        hubPathService.createHubPath(hubPathRequestDTO, currentUser);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseDto.success(HttpStatus.CREATED.name(),"허브 경로가 성공적으로 생성되었습니다."));
@@ -68,11 +68,11 @@ public class HubPathController {
 
     // 허브 경로 수정
     @PutMapping("/{hubPathId}")
-    public ResponseEntity<ResponseDto<HubPathResponseDTO>> updateHubPath(@PathVariable UUID hubPathId, @RequestBody HubPathRequestDTO hubPathRequestDTO) throws UnsupportedEncodingException {
+    public ResponseEntity<ResponseDto<HubPathResponseDTO>> updateHubPath(@PathVariable UUID hubPathId, @RequestBody HubPathRequestDTO hubPathRequestDTO, @Login CurrentUser currentUser) throws UnsupportedEncodingException {
 
         log.info("HubPathController | PUT updateHubPath");
 
-        HubPathResponseDTO result = hubPathService.updateHubPath(hubPathId, hubPathRequestDTO);
+        HubPathResponseDTO result = hubPathService.updateHubPath(hubPathId, hubPathRequestDTO, currentUser);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseDto.success(HttpStatus.OK.name(), result));
@@ -80,11 +80,11 @@ public class HubPathController {
 
     // 허브 경로 삭제 - 논리적 삭제
     @DeleteMapping("/{hubPathId}")
-    public ResponseEntity<ResponseDto<String>> deleteHubPath(@PathVariable UUID hubPathId) {
+    public ResponseEntity<ResponseDto<String>> deleteHubPath(@PathVariable UUID hubPathId, @Login CurrentUser currentUser) {
 
         log.info("HubPathController | DELETE deleteHubPath");
 
-        hubPathService.deleteHubPath(hubPathId);
+        hubPathService.deleteHubPath(hubPathId, currentUser);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseDto.success(HttpStatus.OK.name(),"허브 경로가 성공적으로 삭제되었습니다."));

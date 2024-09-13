@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.msa.hub.domain.repository.HubPathRepository;
 import org.msa.hub.domain.repository.HubRepository;
+import org.msa.hub.global.login.CurrentUser;
 import org.msa.hub.global.util.DistanceMatrixUtil;
 import org.msa.hub.application.exception.hub.HubNotFoundException;
 import org.msa.hub.domain.model.Hub;
@@ -13,15 +14,14 @@ import org.msa.hub.application.dto.hubPath.HubPathResponseDTO;
 import org.msa.hub.application.dto.hubPath.HubPathSequenceDTO;
 import org.msa.hub.application.exception.hubPath.HubPathNotFoundException;
 import org.msa.hub.domain.model.HubPath;
+import org.msa.hub.global.util.UserRoleCheck;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,25 +39,17 @@ public class HubPathServiceImpl implements HubPathService {
     private final HubPathRepository hubPathRepository;
     private final DistanceMatrixUtil distanceMatrixUtil;
     private final CacheManager cacheManager;
+    private final UserRoleCheck userRoleCheck;
+
 
     /**
      * 허브 경로 목록 조회
-     * @param page 
-     * @param size
-     * @param sortBy
-     * @param orderBy
+     * @param pageable 
      * @return
      */
-    @Cacheable(cacheNames = "hubPathListCache", key = "{#page, #size, #sortBy, #orderBy}")
+    @Cacheable(cacheNames = "hubPathListCache")
     @Override
-    public Page<HubPathListDTO> getHubPathList(int page, int size, String sortBy, boolean orderBy) {
-
-        if (size != 10 && size != 30 && size != 50) {
-            size = 10;
-        }
-
-        Sort.Direction direction = orderBy ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(direction, sortBy));
+    public Page<HubPathListDTO> getHubPathList(Pageable pageable) {
 
         Page<HubPath> hubPathPage = hubPathRepository.findAllByIsDeletedFalse(pageable);
 
@@ -72,7 +64,9 @@ public class HubPathServiceImpl implements HubPathService {
     @CachePut(cacheNames = "hubPathCache", key = "#result.hubPathId")
     @Transactional
     @Override
-    public HubPathResponseDTO createHubPath(HubPathRequestDTO hubPathRequestDTO) throws UnsupportedEncodingException {
+    public HubPathResponseDTO createHubPath(HubPathRequestDTO hubPathRequestDTO, CurrentUser currentUser) throws UnsupportedEncodingException {
+
+        userRoleCheck.isAdminRole(currentUser.getCurrentUserRole());
 
         Hub startHub = hubRepository.findById(hubPathRequestDTO.getStartHubId()).orElseThrow(
                 HubNotFoundException::new);
@@ -127,7 +121,9 @@ public class HubPathServiceImpl implements HubPathService {
     @CacheEvict(cacheNames = {"hubPathListCache", "HubPathSequenceCache"}, allEntries = true)
     @Transactional
     @Override
-    public HubPathResponseDTO updateHubPath(UUID hubPathId, HubPathRequestDTO hubPathRequestDTO) throws UnsupportedEncodingException {
+    public HubPathResponseDTO updateHubPath(UUID hubPathId, HubPathRequestDTO hubPathRequestDTO, CurrentUser currentUser) throws UnsupportedEncodingException {
+
+        userRoleCheck.isAdminRole(currentUser.getCurrentUserRole());
 
         HubPath hubPath = hubPathRepository.findById(hubPathId).orElseThrow(
                 HubPathNotFoundException::new);
@@ -153,7 +149,9 @@ public class HubPathServiceImpl implements HubPathService {
     @CacheEvict(cacheNames = "hubPathCache", key = "#hubPathId")
     @Transactional
     @Override
-    public void deleteHubPath(UUID hubPathId) {
+    public void deleteHubPath(UUID hubPathId, CurrentUser currentUser) {
+
+        userRoleCheck.isAdminRole(currentUser.getCurrentUserRole());
 
         HubPath hubPath = hubPathRepository.findById(hubPathId).orElseThrow(
                 HubPathNotFoundException::new);
