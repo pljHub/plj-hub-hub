@@ -1,10 +1,12 @@
 package org.msa.hub.application.dto.product;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.UUID;
 
 @Data
+@Builder
 public class ProductRequestDTO {
 
     private String name;

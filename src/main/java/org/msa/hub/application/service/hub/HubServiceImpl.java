@@ -49,7 +49,7 @@ public class HubServiceImpl implements HubService {
      */
     @Transactional
     @Override
-    public void createHub(HubRequestDTO hubRequestDTO, CurrentUser currentUser) {
+    public HubResponseDTO createHub(HubRequestDTO hubRequestDTO, CurrentUser currentUser) {
 
         userRoleCheck.isAdminRole(currentUser.getCurrentUserRole());
 
@@ -64,6 +64,8 @@ public class HubServiceImpl implements HubService {
                 .build();
 
         hubRepository.save(hub);
+
+        return HubResponseDTO.toDTO(hub);
     }
 
     /**

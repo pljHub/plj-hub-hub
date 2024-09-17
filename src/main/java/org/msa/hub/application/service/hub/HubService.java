@@ -15,7 +15,7 @@ public interface HubService {
     Page<HubListDTO> getHubList(Pageable pageable);
 
     // 허브 생성
-    void createHub(HubRequestDTO hubRequestDTO, CurrentUser currentUser);
+    HubResponseDTO createHub(HubRequestDTO hubRequestDTO, CurrentUser currentUser);
 
     // 허브 조회
     HubResponseDTO findHubById(UUID hubId);

@@ -49,11 +49,13 @@ public class CompanyServiceImpl implements CompanyService {
 
     /**
      * 업체 생성
-     * @param companyRequestDTO 
+     *
+     * @param companyRequestDTO
+     * @return
      */
     @Transactional
     @Override
-    public void createCompany(CompanyRequestDTO companyRequestDTO, CurrentUser currentUser) {
+    public CompanyResponseDTO createCompany(CompanyRequestDTO companyRequestDTO, CurrentUser currentUser) {
 
         Hub hub = hubRepository.findById(companyRequestDTO.getHubId()).orElseThrow(
                 HubNotFoundException::new);
@@ -73,6 +75,7 @@ public class CompanyServiceImpl implements CompanyService {
                 .build();
 
         companyRepository.save(company);
+        return CompanyResponseDTO.toDTO(company);
     }
 
     /**

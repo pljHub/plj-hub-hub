@@ -53,12 +53,14 @@ public class ProductServiceImpl implements ProductService{
 
     /**
      * 상품 생성
+     *
      * @param productRequestDTO
      * @param currentUser
+     * @return
      */
     @Transactional
     @Override
-    public void createProduct(ProductRequestDTO productRequestDTO, CurrentUser currentUser) {
+    public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO, CurrentUser currentUser) {
 
         Hub hub = hubRepository.findById(productRequestDTO.getHubId()).orElseThrow(
                 HubNotFoundException::new);
@@ -88,6 +90,7 @@ public class ProductServiceImpl implements ProductService{
                 .build();
 
         productRepository.save(product);
+        return ProductResponseDTO.toDTO(product);
     }
 
     /**

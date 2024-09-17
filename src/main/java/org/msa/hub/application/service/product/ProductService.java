@@ -15,7 +15,7 @@ public interface ProductService {
     Page<ProductListDTO> getProductList(Pageable pageable);
 
     // 상품 생성
-    void createProduct(ProductRequestDTO productRequestDTO, CurrentUser currentUser);
+    ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO, CurrentUser currentUser);
 
     // 상품 조회
     ProductResponseDTO findProductById(UUID productId);

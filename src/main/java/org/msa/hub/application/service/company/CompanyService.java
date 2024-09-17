@@ -15,7 +15,7 @@ public interface CompanyService {
     Page<CompanyListDTO> getCompanyList(Pageable pageable);
     
     // 업체 생성
-    void createCompany(CompanyRequestDTO companyRequestDTO, CurrentUser currentUser);
+    CompanyResponseDTO createCompany(CompanyRequestDTO companyRequestDTO, CurrentUser currentUser);
 
     // 업체 조회
     CompanyResponseDTO findCompanyById(UUID companyId);
