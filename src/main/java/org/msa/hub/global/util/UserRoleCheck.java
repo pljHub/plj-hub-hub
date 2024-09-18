@@ -37,7 +37,7 @@ public class UserRoleCheck {
             return true;
         } else if (role.equals("HUB_MANAGER") && hubId.equals(companyHubId)) {
             return true;
-        } else if (role.equals("ADMIN, HUB_MANAGER, COMPANY_MANAGER") && findCompanyId.equals(companyId)) {
+        } else if (role.equals("COMPANY_MANAGER") && findCompanyId.equals(companyId)) {
             return true;
         } else {
             throw new HubAccessDeniedException();
