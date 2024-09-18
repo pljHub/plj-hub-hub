@@ -89,6 +89,7 @@ public class ProductServiceImpl implements ProductService{
                 .stock(productRequestDTO.getStock())
                 .build();
 
+        product.setCreatedBy(user.getId());
         productRepository.save(product);
         return ProductResponseDTO.toDTO(product);
     }
@@ -143,7 +144,7 @@ public class ProductServiceImpl implements ProductService{
                 userHubId, hub.getId(), // HUB_MANAGER
                 userCompanyHubId, company.getId()); // COMPANY_MANGER
 
-        product.updateProduct(productRequestDTO,company,hub);
+        product.updateProduct(productRequestDTO,company,hub, user.getId());
 
         return ProductResponseDTO.toDTO(product);
     }
@@ -173,7 +174,7 @@ public class ProductServiceImpl implements ProductService{
                 userHubId, product.getHub().getId(), // HUB_MANAGER
                 userCompanyHubId, product.getCompany().getId()); // COMPANY_MANGER
 
-        product.deleteProduct();
+        product.deleteProduct(user.getId());
     }
 
     /** 

@@ -9,6 +9,7 @@ import org.msa.hub.global.audit.AuditingEntity;
 import org.msa.hub.global.util.GeocodingUtil;
 import org.msa.hub.application.dto.hub.HubRequestDTO;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -36,14 +37,17 @@ public class Hub extends AuditingEntity {
     @Column(name = "longitude", nullable = false)
     private Double longitude;
 
-    public void updateHub(HubRequestDTO hubRequestDTO, GeocodingUtil.LatLong latLong){
+    public void updateHub(HubRequestDTO hubRequestDTO, GeocodingUtil.LatLong latLong, Long userId){
         this.name = hubRequestDTO.getName();
         this.address = hubRequestDTO.getAddress();
         this.latitude = latLong.getLatitude();
         this.longitude = latLong.getLongitude();
+        this.setUpdatedBy(userId);
     }
 
-    public void deleteHub(){
+    public void deleteHub(Long userId){
         this.setIsDeleted(true);
+        this.setDeletedBy(userId);
+        this.setDeletedAt(LocalDateTime.now());
     }
 }

@@ -63,6 +63,7 @@ public class HubServiceImpl implements HubService {
                 .longitude(latLong.getLongitude())
                 .build();
 
+        hub.setCreatedBy(currentUser.getCurrentUserId());
         hubRepository.save(hub);
 
         return HubResponseDTO.toDTO(hub);
@@ -103,7 +104,7 @@ public class HubServiceImpl implements HubService {
         // 주소를 통해 위도 경도 계산
         GeocodingUtil.LatLong latLong = geocodingUtil.getLatLongFromAddress(hubRequestDTO.getAddress());
 
-        hub.updateHub(hubRequestDTO, latLong);
+        hub.updateHub(hubRequestDTO, latLong, currentUser.getCurrentUserId());
 
         return HubResponseDTO.toDTO(hub);
     }
@@ -121,7 +122,7 @@ public class HubServiceImpl implements HubService {
         Hub hub = hubRepository.findById(hubId).orElseThrow(
                 HubNotFoundException::new);
 
-        hub.deleteHub();
+        hub.deleteHub(currentUser.getCurrentUserId());
     }
 
 }

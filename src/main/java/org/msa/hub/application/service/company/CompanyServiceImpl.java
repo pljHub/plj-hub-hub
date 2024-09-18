@@ -74,6 +74,8 @@ public class CompanyServiceImpl implements CompanyService {
                 .address(companyRequestDTO.getAddress())
                 .build();
 
+
+        company.setCreatedBy(user.getId());
         companyRepository.save(company);
         return CompanyResponseDTO.toDTO(company);
     }
@@ -116,7 +118,7 @@ public class CompanyServiceImpl implements CompanyService {
         UserResponseDTO user = response.getBody().getData();
         userRoleCheck.isAdminOrHubManagerOrCompanyManagerForCompany(currentUser.getCurrentUserRole(), user.getHubId(), company.getHub().getId(), user.getCompanyId(), companyId);
 
-        company.updateCompany(companyRequestDTO, hub);
+        company.updateCompany(companyRequestDTO, hub, user.getId());
 
         return CompanyResponseDTO.toDTO(company);
     }
@@ -137,6 +139,6 @@ public class CompanyServiceImpl implements CompanyService {
         UserResponseDTO user = response.getBody().getData();
         userRoleCheck.isAdminOrHubManagerForCompany(currentUser.getCurrentUserRole(), user.getHubId(), company.getHub().getId());
 
-        company.deleteCompany();
+        company.deleteCompany(user.getId());
     }
 }

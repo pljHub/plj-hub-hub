@@ -9,6 +9,7 @@ import org.msa.hub.application.dto.company.CompanyRequestDTO;
 import org.msa.hub.domain.enums.CompanyTypeEnum;
 import org.msa.hub.global.audit.AuditingEntity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -39,15 +40,18 @@ public class Company extends AuditingEntity {
     private String address;
 
     // 업체 수정
-    public void updateCompany(CompanyRequestDTO companyRequestDTO, Hub hub) {
+    public void updateCompany(CompanyRequestDTO companyRequestDTO, Hub hub, Long userId) {
         this.name = companyRequestDTO.getName();
         this.type = companyRequestDTO.getType();
         this.hub = hub;
         this.address = companyRequestDTO.getAddress();
+        this.setUpdatedBy(userId);
     }
 
     // 업체 삭제 - 논리적 삭제
-    public void deleteCompany(){
+    public void deleteCompany(Long userId){
         this.setIsDeleted(true);
+        this.setDeletedBy(userId);
+        this.setDeletedAt(LocalDateTime.now());
     }
 }

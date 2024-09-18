@@ -90,6 +90,7 @@ public class HubPathServiceImpl implements HubPathService {
                 .routePath(hubPathRequestDTO.getRoutePath())
                 .build();
 
+        hubPath.setCreatedBy(currentUser.getCurrentUserId());
         hubPathRepository.save(hubPath);
 
         return HubPathResponseDTO.toDTO(hubPath);
@@ -137,7 +138,7 @@ public class HubPathServiceImpl implements HubPathService {
         // startHub와 destHub의 주소를 비교해 시간 계산
         String duration = distanceMatrixUtil.getDurationFromGoogleMaps(startHub.getAddress(), destHub.getAddress());
 
-        hubPath.updateHubPath(startHub, destHub, duration, hubPathRequestDTO.getRoutePath());
+        hubPath.updateHubPath(startHub, destHub, duration, hubPathRequestDTO.getRoutePath(), currentUser.getCurrentUserId());
 
         return HubPathResponseDTO.toDTO(hubPath);
     }
@@ -157,7 +158,7 @@ public class HubPathServiceImpl implements HubPathService {
                 HubPathNotFoundException::new);
 
         // 논리적 삭제
-        hubPath.deleteHubPath();
+        hubPath.deleteHubPath(currentUser.getCurrentUserId());
 
         // 전체 캐시 삭제 (리스트 캐시 및 시퀀스 캐시)
         Cache hubPathListCache = cacheManager.getCache("hubPathListCache");

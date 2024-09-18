@@ -5,6 +5,7 @@ import lombok.*;
 import org.msa.hub.global.audit.AuditingEntity;
 import org.msa.hub.application.dto.product.ProductRequestDTO;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -38,17 +39,20 @@ public class Product extends AuditingEntity {
     private int stock;
 
     // 상품 수정
-    public void updateProduct(ProductRequestDTO productRequestDTO, Company company, Hub hub){
+    public void updateProduct(ProductRequestDTO productRequestDTO, Company company, Hub hub, Long userId){
         this.name = productRequestDTO.getName();
         this.company = company;
         this.hub =hub;
         this.price = productRequestDTO.getPrice();
         this.stock = productRequestDTO.getStock();
+        this.setUpdatedBy(userId);
     }
 
     // 상품 삭제 - 논리적 삭제
-    public void deleteProduct(){
+    public void deleteProduct(Long userId){
         this.setIsDeleted(true);
+        this.setDeletedBy(userId);
+        this.setDeletedAt(LocalDateTime.now());
     }
 
     // 주문 수량만큼 재고 차감

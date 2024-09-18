@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.msa.hub.global.audit.AuditingEntity;
 import org.msa.hub.domain.model.Hub;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -38,15 +39,18 @@ public class HubPath extends AuditingEntity {
     private String routePath;
 
     // HubPath 수정 메서드
-    public void updateHubPath(Hub StartHub, Hub destHub, String duration, String routePath){
+    public void updateHubPath(Hub StartHub, Hub destHub, String duration, String routePath, Long userId){
         this.startHub = StartHub;
         this.destHub = destHub;
         this.duration = duration;
         this.routePath = routePath;
+        this.setUpdatedBy(userId);
     }
 
-    public void deleteHubPath(){
+    public void deleteHubPath(Long userId){
         this.setIsDeleted(true);
+        this.setDeletedBy(userId);
+        this.setDeletedAt(LocalDateTime.now());
     }
 
 }
